@@ -1,4 +1,5 @@
 // home_page.dart
+import 'package:zee_palm_task/constants/constants.dart';
 import 'package:zee_palm_task/controllers/home_controller.dart';
 import 'package:zee_palm_task/models/video_model.dart';
 import 'package:zee_palm_task/packages/packages.dart';
@@ -130,8 +131,7 @@ class HomePage extends StatelessWidget {
                   icon: Icons.logout,
                   title: 'Sign Out',
                   onTap: () {
-                    // controller.authController.signOut();
-                    Get.offAllNamed('/login');
+                    authService.signOut();
                   },
                   isWeb: isWeb,
                   isDestructive: true,

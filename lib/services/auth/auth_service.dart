@@ -80,13 +80,7 @@ class AuthService {
 
       _authController.isAuthenticating.value = false;
 
-      Get.snackbar(
-        'Success',
-        'Account created successfully! Please verify your email.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: const Color(0xFF10B981),
-        colorText: Colors.white,
-      );
+      storeUserData(userCredential.user!.uid);
     } on FirebaseAuthException catch (e) {
       _authController.isAuthenticating.value = false;
 
@@ -139,6 +133,14 @@ class AuthService {
       });
 
       Get.log('User data stored successfully');
+      Get.snackbar(
+        'Success',
+        'Account created successfully.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+      );
+      Get.offAll(() => HomePage());
     } catch (e) {
       Get.log('Error storing user data: $e');
     }
@@ -160,6 +162,21 @@ class AuthService {
       } else {
         Get.offAll(() => LoginPage());
       }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        Get.log('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        Get.log('Wrong password provided for that user.');
+      }
+    }
+  }
+
+  // signout function
+  /// Sign out user
+  void signOut() {
+    try {
+      FirebaseAuth.instance.signOut();
+      Get.offAll(() => LoginPage());
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         Get.log('No user found for that email.');
