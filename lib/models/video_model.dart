@@ -1,9 +1,10 @@
+// video_model.dart (Updated)
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class VideoModel {
   final String id;
-  final String title;
-  final String description;
+
+  final String caption;
   final String videoUrl;
   final String thumbnailUrl;
   final String uploaderName;
@@ -11,11 +12,11 @@ class VideoModel {
   final DateTime uploadedAt;
   final int views;
   final int likes;
+  final List<String> likedBy;
 
   VideoModel({
     required this.id,
-    required this.title,
-    required this.description,
+    required this.caption,
     required this.videoUrl,
     required this.thumbnailUrl,
     required this.uploaderName,
@@ -23,6 +24,7 @@ class VideoModel {
     required this.uploadedAt,
     this.views = 0,
     this.likes = 0,
+    this.likedBy = const [],
   });
 
   factory VideoModel.fromFirestore(DocumentSnapshot doc) {
@@ -30,8 +32,7 @@ class VideoModel {
 
     return VideoModel(
       id: doc.id,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
+      caption: data['caption'] ?? '',
       videoUrl: data['videoUrl'] ?? '',
       thumbnailUrl: data['thumbnailUrl'] ?? '',
       uploaderName: data['uploaderName'] ?? '',
@@ -40,6 +41,7 @@ class VideoModel {
           (data['uploadedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       views: data['views'] ?? 0,
       likes: data['likes'] ?? 0,
+      likedBy: List<String>.from(data['likedBy'] ?? []),
     );
   }
 }

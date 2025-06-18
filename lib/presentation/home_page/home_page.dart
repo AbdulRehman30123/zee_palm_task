@@ -1,8 +1,9 @@
-// home_page.dart
+// home_page.dart (Same as your current file, only _buildVideoList updated)
 import 'package:zee_palm_task/constants/constants.dart';
 import 'package:zee_palm_task/controllers/home_controller.dart';
 import 'package:zee_palm_task/models/video_model.dart';
 import 'package:zee_palm_task/packages/packages.dart';
+import 'package:zee_palm_task/widgets/video_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -88,14 +89,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Text(
-                  //   controller.authController.getCurrentUserEmail() ?? 'User',
-                  //   style: GoogleFonts.poppins(
-                  //     fontSize: isWeb ? 16 : 14,
-                  //     fontWeight: FontWeight.w600,
-                  //     color: Colors.white,
-                  //   ),
-                  // ),
                   const SizedBox(height: 4),
                   Text(
                     'Welcome back!',
@@ -118,12 +111,6 @@ class HomePage extends StatelessWidget {
                   icon: Icons.upload_rounded,
                   title: 'Upload Video',
                   onTap: controller.navigateToUpload,
-                  isWeb: isWeb,
-                ),
-                _buildDrawerItem(
-                  icon: Icons.account_circle_outlined,
-                  title: 'Account Information',
-                  onTap: controller.navigateToAccount,
                   isWeb: isWeb,
                 ),
                 const Divider(height: 32),
@@ -281,249 +268,13 @@ class HomePage extends StatelessWidget {
         itemCount: controller.videos.length,
         itemBuilder: (context, index) {
           final video = controller.videos[index];
-          return VideoCard(video: video, isWeb: isWeb);
+          return TikTokVideoCard(
+            video: video,
+            isWeb: isWeb,
+            onLikeToggle: controller.toggleLike,
+          );
         },
       ),
     );
-  }
-}
-
-// video_card.dart
-class VideoCard extends StatelessWidget {
-  final VideoModel video;
-  final bool isWeb;
-
-  const VideoCard({
-    super.key,
-    required this.video,
-    required this.isWeb,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: isWeb ? 20 : 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Video Player Section
-          Container(
-            width: double.infinity,
-            height: isWeb ? 300 : 200,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-              child: Stack(
-                children: [
-                  // Thumbnail
-                  if (video.thumbnailUrl.isNotEmpty)
-                    Image.network(
-                      video.thumbnailUrl,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildVideoPlaceholder();
-                      },
-                    )
-                  else
-                    _buildVideoPlaceholder(),
-
-                  // Play Button Overlay
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => _playVideo(video.videoUrl),
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Video Info
-          Padding(
-            padding: EdgeInsets.all(isWeb ? 20 : 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  video.title,
-                  style: GoogleFonts.poppins(
-                    fontSize: isWeb ? 18 : 16,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1F2937),
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  video.description,
-                  style: GoogleFonts.poppins(
-                    fontSize: isWeb ? 14 : 12,
-                    color: const Color(0xFF6B7280),
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 12,
-                      backgroundColor: const Color(0xFF667eea),
-                      child: Text(
-                        video.uploaderName.isNotEmpty
-                            ? video.uploaderName[0].toUpperCase()
-                            : 'U',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            video.uploaderName,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1F2937),
-                            ),
-                          ),
-                          Text(
-                            _formatDate(video.uploadedAt),
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              color: const Color(0xFF9CA3AF),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Stats
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.visibility,
-                          size: 16,
-                          color: const Color(0xFF9CA3AF),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${video.views}',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: const Color(0xFF9CA3AF),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Icon(
-                          Icons.favorite,
-                          size: 16,
-                          color: const Color(0xFF9CA3AF),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${video.likes}',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: const Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVideoPlaceholder() {
-    return Container(
-      color: const Color(0xFF1F2937),
-      child: const Center(
-        child: Icon(
-          Icons.video_library,
-          color: Colors.white54,
-          size: 48,
-        ),
-      ),
-    );
-  }
-
-  void _playVideo(String videoUrl) {
-    if (videoUrl.isNotEmpty) {
-      // Here you can integrate with video_player package or any other video player
-      // For now, we'll show a snackbar
-      Get.snackbar(
-        'Video Player',
-        'Playing: ${video.title}',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-
-      // Example integration with video player:
-      // Get.to(() => VideoPlayerScreen(videoUrl: videoUrl));
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      return 'Just now';
-    }
   }
 }
